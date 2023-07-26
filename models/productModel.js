@@ -1,25 +1,16 @@
 const mongoose = require("mongoose");
-// const fs = require("fs");
-// const mainPath = require("../utils/path");
-// const path = require("path");
-// const p = path.join(mainPath, "data", "products.json");
-
-// const getProductsFromFile = (cb) => {
-//   fs.readFile(p, (err, fileContent) => {
-//     if (err) {
-//       cb([]);
-//     } else {
-//       cb(JSON.parse(fileContent));
-//     }
-//   });
-// };
 
 const productSchema = new mongoose.Schema(
   {
-    title: { type: String },
-    imageUrl: { type: String },
-    description: { type: String },
-    price: { type: Number },
+    title: { type: String, required: true },
+    imageUrl: { type: String, required: true },
+    description: { type: String, required: true },
+    price: { type: Number, required: true },
+    userId: {
+      type: mongoose.Schema.ObjectId,
+      ref: "User",
+      required: true,
+    },
   },
   {
     toJSON: { virtuals: true },
@@ -29,25 +20,3 @@ const productSchema = new mongoose.Schema(
 
 const Product = mongoose.model("Product", productSchema);
 module.exports = Product;
-
-// module.exports = class Product {
-//   constructor(title, imageUrl, description, price) {
-//     this.title = title;
-//     this.imageUrl = imageUrl;
-//     this.description = description;
-//     this.price = price;
-//   }
-
-//   save() {
-//     getProductsFromFile((products) => {
-//       products.push(this);
-//       fs.writeFile(p, JSON.stringify(products), (err) => {
-//         console.log(err);
-//       });
-//     });
-//   }
-
-//   static fetchAll(cb) {
-//     getProductsFromFile(cb);
-//   }
-// };

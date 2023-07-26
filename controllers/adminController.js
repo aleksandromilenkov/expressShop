@@ -25,6 +25,7 @@ const createProduct = async (req, res) => {
       imageUrl,
       description,
       price,
+      userId: req.user._id,
     });
     res.status(201).json({
       status: "success",
@@ -51,7 +52,6 @@ const getProducts = async (req, res) => {
 
 const editProduct = async (req, res) => {
   const { id } = req.params;
-  console.log(id);
   const resp = await Product.findByIdAndUpdate(id, req.body, {
     new: true,
     runValidators: true,
@@ -64,9 +64,7 @@ const editProduct = async (req, res) => {
 
 const deleteProduct = async (req, res) => {
   const { id } = req.params;
-  console.log(id);
   const resp = await Product.findByIdAndDelete(id);
-  console.log(resp);
   res.status(204).json({
     status: "success",
     data: null,
