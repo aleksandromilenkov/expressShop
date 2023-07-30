@@ -9,13 +9,27 @@ const authRoutes = require("./routes/auth");
 const dotenv = require("dotenv");
 const { errorHandler } = require("./controllers/errorController");
 const User = require("./models/userModel");
+const session = require("express-session");
+const MongoDBStore = require("connect-mongodb-session")(session);
 
+const store = new MongoDBStore({
+  uri: "mongodb+srv://aleksandro:gzF2lzgI0EYtTF4b@cluster0.41krbbu.mongodb.net/express-shop?retryWrites=true&w=majority",
+  collection: "sessions",
+});
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json({ limit: "10kb" }));
 app.use(bodyParser.urlencoded({ extended: false }));
 dotenv.config({ path: "./config.env" });
+app.use(
+  session({
+    secret: "my secret",
+    resave: false,
+    saveUninitialized: false,
+    store: store,
+  })
+);
 
 app.use((req, res, next) => {
   User.findById("64bd5ec730b14b18a36cd2d1")

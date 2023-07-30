@@ -1,4 +1,5 @@
 const getLogin = (req, res, next) => {
+  console.log(req.session.isLoggedIn);
   res.render("auth/login", {
     path: "/login",
     pageTitle: "Login",
@@ -6,7 +7,7 @@ const getLogin = (req, res, next) => {
 };
 
 const postLogin = (req, res, next) => {
-  res.cookie("loggedIn", "true");
+  req.session.isLoggedIn = true;
   res.redirect("/");
 };
 
