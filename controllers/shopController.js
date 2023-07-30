@@ -67,10 +67,12 @@ const deleteCart = async (req, res, next) => {
   });
 };
 
-const getOrders = (req, res, next) => {
+const getOrders = async (req, res, next) => {
+  const orders = await Order.find({ "user.userId": req.user._id });
   res.render("shop/orders", {
     path: "/orders",
     pageTitle: "Your Orders",
+    orders: orders,
   });
 };
 
@@ -79,19 +81,22 @@ const postOrder = async (req, res, next) => {
     const products = await req.user.populate("cart.items.productId");
     const adjustedProducts = products.cart.items.map((item) => {
       return {
-        product: item.productId,
+        product: { ...item.productId._doc },
         quantity: item.quantity,
       };
     });
-    const order = new Order({
+    const order = await Order.create({
       products: adjustedProducts,
       user: {
         name: req.user.name,
         userId: req.user._id,
       },
     });
-    await order.save();
-    res.redirect("/orders");
+    await req.user.clearCart();
+    res.status(201).json({
+      order: order,
+      status: "success",
+    });
   } catch (err) {
     console.log(err);
   }

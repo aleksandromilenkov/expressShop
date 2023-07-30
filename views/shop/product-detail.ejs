@@ -1,6 +1,7 @@
 <%- include('../includes/head.ejs') %>
     <link rel="stylesheet" href="/css/main.css" />
     <link rel="stylesheet" href="/css/product.css" />
+    <script src="/js/addToCart.js" defer></script>
   </head>
   <body>
       <%- include('../includes/navigation.ejs') %>
@@ -12,8 +13,8 @@
           </div>
           <h2><%= product.price %></h2>
           <p><%= product.description %></p>
-          <form action="/cart">
-            <button class="btn" type="submit">Add to cart</button>
-          </form>
+          <div>
+            <button class="btn addToCartBtn" data-doc="<%=product._id %>">Add to cart</button>
+          </div>
       </main>
     <%- include('../includes/end.ejs') %>

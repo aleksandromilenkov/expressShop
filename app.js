@@ -5,6 +5,7 @@ const bodyParser = require("body-parser");
 const app = express();
 const adminRoutes = require("./routes/adminRoutes");
 const shopRoutes = require("./routes/shopRoutes");
+const authRoutes = require("./routes/auth");
 const dotenv = require("dotenv");
 const { errorHandler } = require("./controllers/errorController");
 const User = require("./models/userModel");
@@ -27,6 +28,7 @@ app.use((req, res, next) => {
 
 app.use("/admin", adminRoutes);
 app.use("/", shopRoutes);
+app.use("/", authRoutes);
 
 app.use("*", errorHandler);
 

@@ -1,5 +1,4 @@
 const addProductForm = document.querySelector(".product-form");
-console.log("QWE");
 const createProduct = async (data) => {
   console.log(data);
   const product = await fetch("http://localhost:3000/admin/add-product", {
