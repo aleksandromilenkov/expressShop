@@ -28,7 +28,10 @@
             </p>
           </div>
           <div class="card__actions">
-            <button class="btn addToCartBtn" data-doc="<%=product._id %>">Add to Cart</button>
+            <a class="btn" href="/products/<%= product._id %>">Details</a>
+            <% if(isAuthenticated) {%>
+             <button class="btn addToCartBtn" data-doc="<%=product._id %>">Add to Cart</button>
+             <% } %>
           </div>
         </article>
         <% } %> <% } else { %>

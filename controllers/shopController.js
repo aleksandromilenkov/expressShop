@@ -1,5 +1,6 @@
 const Order = require("../models/ordersModel");
 const Product = require("../models/productModel");
+const User = require("../models/userModel");
 const getProducts = async (req, res, next) => {
   try {
     const products = await Product.find({});
@@ -8,6 +9,7 @@ const getProducts = async (req, res, next) => {
       pageTitle: "Shop",
       path: "/products",
       hasProducts: products.length > 0,
+      isAuthenticated: req.user,
     });
   } catch (err) {
     console.log(err);
@@ -20,6 +22,7 @@ const getProduct = async (req, res, next) => {
     product: product,
     pageTitle: product.title,
     path: "/products",
+    isAuthenticated: req.user,
   });
 };
 
@@ -31,6 +34,7 @@ const getIndex = async (req, res, next) => {
       pageTitle: "Shop",
       path: "/",
       hasProducts: products.length > 0,
+      isAuthenticated: req.user,
     });
   } catch (err) {
     console.log(err);
@@ -38,11 +42,14 @@ const getIndex = async (req, res, next) => {
 };
 
 const getCart = async (req, res, next) => {
-  const products = await req.user.populate({ path: "cart.items.productId" });
+  const products = await req.user.populate({
+    path: "cart.items.productId",
+  });
   res.render("shop/cart", {
     path: "/cart",
     pageTitle: "Your Cart",
     products: products.cart.items,
+    isAuthenticated: req.user,
   });
 };
 
@@ -50,11 +57,14 @@ const postCart = async (req, res, next) => {
   const { id } = req.body;
   const product = await Product.findById(id);
   await req.user.addToCart(product);
-  const products = await req.user.populate({ path: "cart.items.productId" });
+  const products = await req.user.populate({
+    path: "cart.items.productId",
+  });
   res.render("shop/cart", {
     path: "/cart",
     pageTitle: "Your Cart",
     products: products.cart.items,
+    isAuthenticated: req.user,
   });
 };
 
@@ -73,6 +83,7 @@ const getOrders = async (req, res, next) => {
     path: "/orders",
     pageTitle: "Your Orders",
     orders: orders,
+    isAuthenticated: req.user,
   });
 };
 
@@ -106,6 +117,7 @@ const getCheckout = (req, res, next) => {
   res.render("shop/checkout", {
     path: "/checkout",
     pageTitle: "Checkout",
+    isAuthenticated: req.user,
   });
 };
 

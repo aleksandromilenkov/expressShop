@@ -4,6 +4,7 @@ const getAddProduct = (req, res) => {
   res.render("admin/add-product", {
     pageTitle: "Add Product",
     path: "/admin/add-product",
+    isAuthenticated: req.user,
   });
 };
 
@@ -11,6 +12,7 @@ const getEditProduct = (req, res) => {
   res.render("admin/edit-product", {
     pageTitle: "Edit Product",
     path: "/admin/edit-product",
+    isAuthenticated: req.user,
   });
 };
 
@@ -44,6 +46,7 @@ const getProducts = async (req, res) => {
       pageTitle: "Admin Products",
       path: "/admin/products",
       hasProducts: products.length > 0,
+      isAuthenticated: req.user,
     });
   } catch (err) {
     console.log(err);
