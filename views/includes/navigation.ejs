@@ -39,12 +39,20 @@
     <ul class="main-header__item-list">
       <% if(!isAuthenticated) { %>
       <li class="main-header__item">
+        <input type="hidden" value="<%= csurfToken %>" class="csurfToken" />
         <a class="<%= path === '/login' ? 'active' : '' %>" href="/login"
           >Login</a
         >
       </li>
+      <li class="main-header__item">
+        <input type="hidden" value="<%= csurfToken %>" class="csurfToken" />
+        <a class="<%= path === '/signup' ? 'active' : '' %>" href="/signup"
+          >Signup</a
+        >
+      </li>
       <% }else{ %>
       <li class="main-header__item">
+        <input type="hidden" value="<%= csurfToken %>" class="csurfToken" />
         <a class="<%= path === '/logout' ? 'active' : '' %> logoutBtn"
           >Logout</a
         >
@@ -64,6 +72,7 @@
         >Products</a
       >
     </li>
+    <% if (isAuthenticated) { %>
     <li class="mobile-nav__item">
       <a class="<%= path === '/cart' ? 'active' : '' %>" href="/cart">Cart</a>
     </li>
@@ -86,5 +95,19 @@
         >Admin Products
       </a>
     </li>
+    <% } %> <% if (!isAuthenticated) { %>
+    <li class="mobile-nav__item">
+      <a class="<%= path === '/login' ? 'active' : '' %>">Login</a>
+    </li>
+    <li class="mobile-nav__item">
+      <a class="<%= path === '/signup' ? 'active' : '' %>">Signup</a>
+    </li>
+    <% } else { %>
+    <li class="mobile-nav__item">
+      <div>
+        <button type="submit" class="logoutBtn">Logout</button>
+      </div>
+    </li>
+    <% } %>
   </ul>
 </nav>

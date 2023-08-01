@@ -1,9 +1,11 @@
 const addProductForm = document.querySelector(".product-form");
 const createProduct = async (data) => {
+  const csurfToken = document.querySelector(".csurfToken").value;
   const product = await fetch("http://localhost:3000/admin/add-product", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      "X-CSRF-Token": csurfToken,
     },
     body: JSON.stringify(data),
   });

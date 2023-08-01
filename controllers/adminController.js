@@ -4,15 +4,16 @@ const getAddProduct = (req, res) => {
   res.render("admin/add-product", {
     pageTitle: "Add Product",
     path: "/admin/add-product",
-    isAuthenticated: req.user,
   });
 };
 
-const getEditProduct = (req, res) => {
+const getEditProduct = async (req, res) => {
+  const { id } = req.params;
+  const product = await Product.findById(id);
   res.render("admin/edit-product", {
     pageTitle: "Edit Product",
     path: "/admin/edit-product",
-    isAuthenticated: req.user,
+    product: product,
   });
 };
 
@@ -46,7 +47,6 @@ const getProducts = async (req, res) => {
       pageTitle: "Admin Products",
       path: "/admin/products",
       hasProducts: products.length > 0,
-      isAuthenticated: req.user,
     });
   } catch (err) {
     console.log(err);
@@ -55,10 +55,7 @@ const getProducts = async (req, res) => {
 
 const editProduct = async (req, res) => {
   const { id } = req.params;
-  const resp = await Product.findByIdAndUpdate(id, req.body, {
-    new: true,
-    runValidators: true,
-  });
+  const resp = await Product.findByIdAndUpdate(id, req.body);
   res.status(200).json({
     status: "success",
     data: resp,

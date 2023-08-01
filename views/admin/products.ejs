@@ -28,7 +28,8 @@
             </p>
           </div>
           <div class="card__actions">
-            <button class="btn editProduct"><a href="/admin/edit-product/<%= product._id %>">Edit</a></button>
+            <input type="hidden" value="<%= csurfToken %>" class="csurfToken" />
+            <button class="btn editProduct"><a href="/admin/edit-product/<%= product._id %>" class="editProductLink">Edit</a></button>
             <button class="btn deleteProduct" data-doc="<%= product._id %>">Delete</button>
           </div>
         </article>

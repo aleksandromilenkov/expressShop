@@ -9,7 +9,6 @@ const getProducts = async (req, res, next) => {
       pageTitle: "Shop",
       path: "/products",
       hasProducts: products.length > 0,
-      isAuthenticated: req.user,
     });
   } catch (err) {
     console.log(err);
@@ -22,7 +21,6 @@ const getProduct = async (req, res, next) => {
     product: product,
     pageTitle: product.title,
     path: "/products",
-    isAuthenticated: req.user,
   });
 };
 
@@ -34,7 +32,6 @@ const getIndex = async (req, res, next) => {
       pageTitle: "Shop",
       path: "/",
       hasProducts: products.length > 0,
-      isAuthenticated: req.user,
     });
   } catch (err) {
     console.log(err);
@@ -49,7 +46,6 @@ const getCart = async (req, res, next) => {
     path: "/cart",
     pageTitle: "Your Cart",
     products: products.cart.items,
-    isAuthenticated: req.user,
   });
 };
 
@@ -64,7 +60,6 @@ const postCart = async (req, res, next) => {
     path: "/cart",
     pageTitle: "Your Cart",
     products: products.cart.items,
-    isAuthenticated: req.user,
   });
 };
 
@@ -83,7 +78,6 @@ const getOrders = async (req, res, next) => {
     path: "/orders",
     pageTitle: "Your Orders",
     orders: orders,
-    isAuthenticated: req.user,
   });
 };
 
@@ -99,7 +93,7 @@ const postOrder = async (req, res, next) => {
     const order = await Order.create({
       products: adjustedProducts,
       user: {
-        name: req.user.name,
+        email: req.user.email,
         userId: req.user._id,
       },
     });
@@ -117,7 +111,6 @@ const getCheckout = (req, res, next) => {
   res.render("shop/checkout", {
     path: "/checkout",
     pageTitle: "Checkout",
-    isAuthenticated: req.user,
   });
 };
 

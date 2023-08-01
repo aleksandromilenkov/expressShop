@@ -15,6 +15,7 @@
           <p><%= product.description %></p>
           <% if(isAuthenticated) {  %>
           <div>
+            <input type="hidden" value="<%= csurfToken %>" class="csurfToken" />
             <button class="btn addToCartBtn" data-doc="<%=product._id %>">Add to cart</button>
           </div>
           <% } %>
