@@ -1,4 +1,9 @@
 const signupForm = document.querySelector(".signupForm");
+const errorField = document.querySelector(".userMessage--error");
+console.log(errorField.textContent.length);
+if (errorField.textContent.length !== 0) {
+  errorField.classList.remove("hide-field");
+}
 signupForm?.addEventListener("submit", async (e) => {
   e.preventDefault();
   const csurfToken = document.querySelector(".csurfToken").value;
@@ -19,8 +24,10 @@ signupForm?.addEventListener("submit", async (e) => {
   const data = await resp.json();
   console.log(data);
   if (data.status !== "success") {
-    location.assign("/signup");
+    errorField.classList.remove("hide-field");
+    errorField.textContent = data.message;
   } else {
+    errorField.classList.add("hide-field");
     location.assign("/login");
   }
 });

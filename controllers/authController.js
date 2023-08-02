@@ -61,7 +61,7 @@ const postSignup = async (req, res, next) => {
   if (isUserExists) {
     return res.status(404).json({
       status: "error",
-      message: "user already exists",
+      message: "email already exists",
     });
   }
   const user = await User.create({
