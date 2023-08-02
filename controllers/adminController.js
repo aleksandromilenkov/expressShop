@@ -35,6 +35,10 @@ const createProduct = async (req, res) => {
       data: newProduct,
     });
   } catch (err) {
+    res.status(400).json({
+      status: "error",
+      message: "Invalid inputs",
+    });
     console.log(err);
   }
 };

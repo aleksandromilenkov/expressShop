@@ -19,6 +19,14 @@ form {
   display: inline;
 }
 
+a:link,
+a:visited {
+  text-decoration: none;
+}
+a:hover,
+a:active {
+  text-decoration: underline;
+}
 .centered {
   text-align: center;
 }
@@ -252,6 +260,10 @@ form {
 
 .hide-field {
   display: none;
+}
+
+.userMessage--registered {
+  background-color: rgb(53, 253, 53);
 }
 
 @media (min-width: 768px) {

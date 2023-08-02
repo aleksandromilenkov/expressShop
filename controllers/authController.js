@@ -1,5 +1,33 @@
 const User = require("../models/userModel");
 const bcrypt = require("bcryptjs");
+const nodemailer = require("nodemailer");
+
+const sendMail = async (to, from, subject, text, html) => {
+  let testAccount = await nodemailer.createTestAccount();
+  const transporter = nodemailer.createTransport({
+    host: "smtp.ethereal.email",
+    port: 587,
+    secure: false,
+    auth: {
+      user: testAccount.user,
+      pass: testAccount.pass,
+    },
+  });
+  let message = {
+    from: `${from}`,
+    to: `${to}`,
+    subjet: `${subject}`,
+    text: `${text}`,
+    html: `${html}`,
+  };
+  const resp = await transporter.sendMail(message);
+  console.log(resp);
+  return {
+    message: "You received email",
+    info: resp.messageId,
+    preview: nodemailer.getTestMessageUrl(resp),
+  };
+};
 
 const getLogin = (req, res, next) => {
   res.render("auth/login", {
@@ -72,9 +100,18 @@ const postSignup = async (req, res, next) => {
     },
   });
   await user.save();
+  const sentEmail = await sendMail(
+    email,
+    "Aleksandro Milenkov aleksandromilenkov@yahoo.com",
+    "Registered",
+    "Successfully registered",
+    `<b>Successfully registered.</b> You can login <a target='_blank' href='http://localhost:3000/login' > here </a>`
+  );
+  console.log(sentEmail);
   res.status(201).json({
     status: "success",
     user,
+    sentEmail,
   });
 };
 
