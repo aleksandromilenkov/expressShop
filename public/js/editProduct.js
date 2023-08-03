@@ -20,7 +20,12 @@ editBtn.addEventListener("click", async (e) => {
       body: JSON.stringify({ title, description, imageUrl, price }),
     }
   );
-  if (resp.ok) {
+  console.log(resp);
+  const data = await resp.json();
+  console.log(data);
+  if (data.status === "success") {
     location.assign("/admin/products");
+  } else {
+    location.assign("/");
   }
 });

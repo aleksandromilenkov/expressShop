@@ -13,8 +13,11 @@ deleteBtns.forEach((deleteBtn) => {
         },
       }
     );
-    if (resp.ok) {
+    const data = await resp.json();
+    if (data.status === "sucess") {
       location.reload();
+    } else {
+      location.assign("/");
     }
   });
 });

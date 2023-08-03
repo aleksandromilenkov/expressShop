@@ -45,7 +45,7 @@ const createProduct = async (req, res) => {
 
 const getProducts = async (req, res) => {
   try {
-    const products = await Product.find();
+    const products = await Product.find({ userId: req.user._id });
     res.render("admin/products", {
       products,
       pageTitle: "Admin Products",
@@ -59,17 +59,32 @@ const getProducts = async (req, res) => {
 
 const editProduct = async (req, res) => {
   const { id } = req.params;
-  const resp = await Product.findByIdAndUpdate(id, req.body);
+  if (req.user._id !== id) {
+  }
+  const product = await Product.findById(id);
+  if (product.userId.toString() !== req.user._id.toString()) {
+    return res.status(400).json({
+      status: "error",
+      message: "Can't edit this product",
+    });
+  }
+  const updatedProduct = await Product.findByIdAndUpdate(id, req.body);
   res.status(200).json({
     status: "success",
-    data: resp,
+    data: updatedProduct,
   });
 };
 
 const deleteProduct = async (req, res) => {
   const { id } = req.params;
-  const resp = await Product.findByIdAndDelete(id);
-  res.status(204).json({
+  const resp = await Product.deleteOne({ _id: id, userId: req.user._id });
+  if (resp.deletedCount === 0) {
+    return res.status(400).json({
+      status: "error",
+      message: "Can't delete this product",
+    });
+  }
+  return res.status(200).json({
     status: "success",
     data: null,
   });
