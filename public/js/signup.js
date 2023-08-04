@@ -14,6 +14,9 @@ signupForm?.addEventListener("submit", async (e) => {
   const csurfToken = document.querySelector(".csurfToken").value;
   const email = document.querySelector(".signupEmail").value;
   const password = document.querySelector(".signupPassword").value;
+  const confirmPassword = document.querySelector(
+    ".signupConfirmPassword"
+  ).value;
   console.log(email, password);
   const resp = await fetch("http://localhost:3000/signup", {
     method: "POST",
@@ -24,6 +27,7 @@ signupForm?.addEventListener("submit", async (e) => {
     body: JSON.stringify({
       email,
       password,
+      confirmPassword,
     }),
   });
   const data = await resp.json();

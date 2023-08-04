@@ -2,6 +2,7 @@ const User = require("../models/userModel");
 const bcrypt = require("bcryptjs");
 const nodemailer = require("nodemailer");
 const crypto = require("crypto");
+const { validationResult } = require("express-validator");
 
 const sendMail = async (to, from, subject, text, html) => {
   let testAccount = await nodemailer.createTestAccount();
@@ -41,6 +42,14 @@ const postLogin = async (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
   const user = await User.findOne({ email: email });
+  const errors = validationResult(req);
+  console.log(errors.array());
+  if (!errors.isEmpty()) {
+    return res.status(422).json({
+      status: "error",
+      message: errors.array()[0].msg,
+    });
+  }
   if (!user) {
     console.log("Not user found with that E-mail");
     return res.status(401).json({
@@ -86,13 +95,21 @@ const postSignup = async (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
   const confirmPassword = req.body.confirmPassword;
-  const isUserExists = await User.findOne({ email: email });
-  if (isUserExists) {
-    return res.status(404).json({
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    console.log(errors.array());
+    return res.status(422).json({
       status: "error",
-      message: "email already exists",
+      message: errors.array()[0].msg,
     });
   }
+  // const isUserExists = await User.findOne({ email: email });
+  // if (isUserExists) {
+  //   return res.status(404).json({
+  //     status: "error",
+  //     message: "email already exists",
+  //   });
+  // }
   const user = await User.create({
     email: email,
     password: await bcrypt.hash(password, 12),
