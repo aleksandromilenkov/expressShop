@@ -9,11 +9,12 @@ router.get("/login", authController.getLogin);
 router.post(
   "/login",
   [
-    check("email").isEmail().withMessage("Please enter a valid e-mail"),
-    body(
-      "password",
-      "Please enter at least 5 characters long alphanumeric password"
-    )
+    check("email")
+      .isEmail()
+      .withMessage("Please enter a valid e-mail")
+      .normalizeEmail(),
+    body("password", "Please enter 5-20 characters long alphanumeric password")
+      .trim()
       .isLength({ min: 5, max: 20 })
       .isAlphanumeric(),
   ],
@@ -26,6 +27,7 @@ router.post(
   [
     check("email")
       .isEmail()
+      .normalizeEmail()
       .withMessage("Please enter a valid e-mail address")
       .custom((value, { req }) => {
         const regex = /express-shop@[\s\S]*/;
@@ -42,19 +44,19 @@ router.post(
         }
         return true;
       }),
-    body(
-      "password",
-      "Please enter at least 5 characters long alphanumeric password"
-    )
+    body("password", "Please enter 5-20 characters long alphanumeric password")
+      .trim()
       .isLength({ min: 5, max: 20 })
       .isAlphanumeric(),
-    body("confirmPassword").custom((value, { req }) => {
-      const password = req.body.password;
-      if (value !== password) {
-        throw new Error("Please confirm your password correctly");
-      }
-      return true;
-    }),
+    body("confirmPassword")
+      .trim()
+      .custom((value, { req }) => {
+        const password = req.body.password;
+        if (value !== password) {
+          throw new Error("Please confirm your password correctly");
+        }
+        return true;
+      }),
   ],
   authController.postSignup
 );

@@ -17,6 +17,9 @@ signupForm?.addEventListener("submit", async (e) => {
   const confirmPassword = document.querySelector(
     ".signupConfirmPassword"
   ).value;
+  document.querySelector(".signupEmail").classList.remove("invalid");
+  document.querySelector(".signupPassword").classList.remove("invalid");
+  document.querySelector(".signupConfirmPassword").classList.remove("invalid");
   console.log(email, password);
   const resp = await fetch("http://localhost:3000/signup", {
     method: "POST",
@@ -36,6 +39,17 @@ signupForm?.addEventListener("submit", async (e) => {
     errorField.classList.remove("hide-field");
     registeredField.classList.add("hide-field");
     errorField.textContent = data.message;
+    console.log(data.errors);
+    if (data.errors.find((er) => er.path === "email")) {
+      console.log("s");
+      document.querySelector(".signupEmail").classList.add("invalid");
+    }
+    if (data.errors.find((er) => er.path === "password")) {
+      document.querySelector(".signupPassword").classList.add("invalid");
+    }
+    if (data.errors.find((er) => er.path === "confirmPassword")) {
+      document.querySelector(".signupConfirmPassword").classList.add("invalid");
+    }
   } else {
     errorField.classList.add("hide-field");
     registeredField.classList.remove("hide-field");

@@ -11,6 +11,8 @@ loginForm.addEventListener("submit", async (e) => {
     const csurfToken = document.querySelector(".csurfToken").value;
     const email = document.querySelector("#email").value;
     const password = document.querySelector("#password").value;
+    document.querySelector("#email").classList.remove("invalid");
+    document.querySelector("#password").classList.remove("invalid");
     const resp = await fetch("http://localhost:3000/login", {
       method: "POST",
       headers: {
@@ -32,7 +34,13 @@ loginForm.addEventListener("submit", async (e) => {
       const errorMessage = (document.querySelector(
         ".userMessage--error"
       ).textContent = data.message);
-      console.log(data.message);
+      console.log(data.errors);
+      if (data.errors.find((err) => err.path === "email")) {
+        document.querySelector("#email").classList.add("invalid");
+      }
+      if (data.errors.find((err) => err.path === "password")) {
+        document.querySelector("#password").classList.add("invalid");
+      }
     }
   } catch (err) {
     console.log(err);

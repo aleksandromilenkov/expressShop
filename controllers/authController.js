@@ -48,6 +48,7 @@ const postLogin = async (req, res, next) => {
     return res.status(422).json({
       status: "error",
       message: errors.array()[0].msg,
+      errors: errors.array(),
     });
   }
   if (!user) {
@@ -55,6 +56,7 @@ const postLogin = async (req, res, next) => {
     return res.status(401).json({
       status: "error",
       message: "Not user found with that E-mail ",
+      errors: [{ path: "email" }],
     });
   }
   const isPasswordCorrect = await bcrypt.compare(password, user?.password);
@@ -63,6 +65,7 @@ const postLogin = async (req, res, next) => {
     return res.status(401).json({
       status: "error",
       message: "Not user found with that Password",
+      errors: [{ path: "password" }],
     });
   }
   req.session.isLoggedIn = true;
@@ -101,6 +104,7 @@ const postSignup = async (req, res, next) => {
     return res.status(422).json({
       status: "error",
       message: errors.array()[0].msg,
+      errors: errors.array(),
     });
   }
   // const isUserExists = await User.findOne({ email: email });
