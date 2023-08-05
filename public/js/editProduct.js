@@ -1,4 +1,9 @@
 const editBtn = document.querySelector(".editProduct");
+const errorField = document.querySelector(".userMessage--error");
+
+if (errorField.textContent.length !== 0) {
+  errorField.classList.remove("hide-field");
+}
 
 editBtn.addEventListener("click", async (e) => {
   e.preventDefault();
@@ -24,8 +29,21 @@ editBtn.addEventListener("click", async (e) => {
   const data = await resp.json();
   console.log(data);
   if (data.status === "success") {
+    errorField.classList.add("hide-field");
+    errorField.textContent = "";
+    document.querySelector("#imageUrl").classList.remove("invalid");
     location.assign("/admin/products");
-  } else {
-    location.assign("/");
+  } else if (data.status === "error") {
+    errorField.classList.remove("hide-field");
+    errorField.textContent = data.message;
+    if (data.errors.find((er) => er.path === "imageUrl")) {
+      document.querySelector("#imageUrl").classList.add("invalid");
+    }
+    if (data.errors.find((er) => er.path === "price")) {
+      document.querySelector("#price").classList.add("invalid");
+    }
+    if (data.errors.find((er) => er.path === "title")) {
+      document.querySelector("#title").classList.add("invalid");
+    }
   }
 });

@@ -1,3 +1,4 @@
+const { validationResult } = require("express-validator");
 const Product = require("../models/productModel");
 
 const getAddProduct = (req, res) => {
@@ -23,6 +24,15 @@ const createProduct = async (req, res) => {
     const imageUrl = req.body.imageUrl;
     const description = req.body.description;
     const price = req.body.price;
+    const errors = validationResult(req);
+    console.log(errors.array());
+    if (!errors.isEmpty()) {
+      return res.status(422).json({
+        status: "error",
+        message: errors.array()[0].msg,
+        errors: errors.array(),
+      });
+    }
     const newProduct = await Product.create({
       title,
       imageUrl,
@@ -60,6 +70,15 @@ const getProducts = async (req, res) => {
 const editProduct = async (req, res) => {
   const { id } = req.params;
   if (req.user._id !== id) {
+  }
+  const errors = validationResult(req);
+  console.log(errors.array());
+  if (!errors.isEmpty()) {
+    return res.status(422).json({
+      status: "error",
+      message: errors.array()[0].msg,
+      errors: errors.array(),
+    });
   }
   const product = await Product.findById(id);
   if (product.userId.toString() !== req.user._id.toString()) {
