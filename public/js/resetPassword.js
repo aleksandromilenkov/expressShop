@@ -25,10 +25,12 @@ resetPasswordBtn.addEventListener("click", async (e) => {
     errorField.classList.remove("hide-field");
     errorField.textContent = data.message;
     console.log(data.message);
-  } else {
+  } else if (data.status === "success") {
     errorField.classList.add("hide-field");
     resetPasswordSuccessField.classList.remove("hide-field");
     resetPasswordSuccessField.innerHTML = `
     Password reset link sent to e-mail. Click here to open it: <a href=${data.sentEmail.preview}> Open e-mail</a>`;
+  } else {
+    location.assign("/500");
   }
 });

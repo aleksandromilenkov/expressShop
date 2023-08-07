@@ -22,22 +22,37 @@ addProductForm.addEventListener("submit", async (e) => {
   const description = document.getElementById("description").value;
   const imageUrl = document.getElementById("imageUrl").value;
   const price = document.getElementById("price").value;
-  const response = await createProduct({ title, description, imageUrl, price });
-  if (response.status === "success") {
-    errorField.classList.add("hide-field");
-    errorField.textContent = "";
-    location.assign("/");
-  } else if (response.status === "error") {
-    errorField.classList.remove("hide-field");
-    errorField.textContent = response.message;
-    if (response.errors.find((er) => er.path === "title")) {
-      document.querySelector("#title").classList.add("invalid");
+  try {
+    const response = await createProduct({
+      title,
+      description,
+      imageUrl,
+      price,
+    });
+    console.log(response);
+    if (response.status === "success") {
+      errorField.classList.add("hide-field");
+      errorField.textContent = "";
+      location.assign("/");
+    } else if (response.status === "error") {
+      errorField.classList.remove("hide-field");
+      errorField.textContent = response.message;
+      if (response.errors.find((er) => er.path === "title")) {
+        document.querySelector("#title").classList.add("invalid");
+      }
+      if (response.errors.find((er) => er.path === "imageUrl")) {
+        document.querySelector("#imageUrl").classList.add("invalid");
+      }
+      if (response.errors.find((er) => er.path === "price")) {
+        document.querySelector("#price").classList.add("invalid");
+      }
+    } else {
+      console.log("E");
+      // location.assign("/500");
     }
-    if (response.errors.find((er) => er.path === "imageUrl")) {
-      document.querySelector("#imageUrl").classList.add("invalid");
-    }
-    if (response.errors.find((er) => er.path === "price")) {
-      document.querySelector("#price").classList.add("invalid");
-    }
+  } catch (err) {
+    location.assign("/500");
+    console.log(err);
+    return;
   }
 });

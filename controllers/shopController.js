@@ -11,17 +11,27 @@ const getProducts = async (req, res, next) => {
       hasProducts: products.length > 0,
     });
   } catch (err) {
-    console.log(err);
+    const error = new Error(err);
+    error.httpStatus = 500;
+    console.log(error);
+    return next(error);
   }
 };
 
 const getProduct = async (req, res, next) => {
-  const product = await Product.findById(req.params.id);
-  res.render("shop/product-detail", {
-    product: product,
-    pageTitle: product.title,
-    path: "/products",
-  });
+  try {
+    const product = await Product.findById(req.params.id);
+    res.render("shop/product-detail", {
+      product: product,
+      pageTitle: product.title,
+      path: "/products",
+    });
+  } catch (err) {
+    const error = new Error(err);
+    error.httpStatus = 500;
+    console.log(error);
+    return next(error);
+  }
 };
 
 const getIndex = async (req, res, next) => {
@@ -34,51 +44,81 @@ const getIndex = async (req, res, next) => {
       hasProducts: products.length > 0,
     });
   } catch (err) {
-    console.log(err);
+    const error = new Error(err);
+    error.httpStatus = 500;
+    console.log(error);
+    return next(error);
   }
 };
 
 const getCart = async (req, res, next) => {
-  const products = await req.user.populate({
-    path: "cart.items.productId",
-  });
-  res.render("shop/cart", {
-    path: "/cart",
-    pageTitle: "Your Cart",
-    products: products.cart.items,
-  });
+  try {
+    const products = await req.user.populate({
+      path: "cart.items.productId",
+    });
+    res.render("shop/cart", {
+      path: "/cart",
+      pageTitle: "Your Cart",
+      products: products.cart.items,
+    });
+  } catch (err) {
+    const error = new Error(err);
+    error.httpStatus = 500;
+    console.log(error);
+    return next(error);
+  }
 };
 
 const postCart = async (req, res, next) => {
-  const { id } = req.body;
-  const product = await Product.findById(id);
-  await req.user.addToCart(product);
-  const products = await req.user.populate({
-    path: "cart.items.productId",
-  });
-  res.render("shop/cart", {
-    path: "/cart",
-    pageTitle: "Your Cart",
-    products: products.cart.items,
-  });
+  try {
+    const { id } = req.body;
+    const product = await Product.findById(id);
+    await req.user.addToCart(product);
+    await req.user.populate({
+      path: "cart.items.productId",
+    });
+    res.status(201).json({
+      status: "success",
+      data: product,
+    });
+  } catch (err) {
+    const error = new Error(err);
+    error.httpStatus = 500;
+    console.log(error);
+    return next(error);
+  }
 };
 
 const deleteCart = async (req, res, next) => {
-  const { id } = req.params;
-  await req.user.removeFromCart(id);
-  res.status(204).json({
-    status: "success",
-    data: null,
-  });
+  try {
+    const { id } = req.params;
+    await req.user.removeFromCart(id);
+    res.status(200).json({
+      status: "success",
+      data: null,
+    });
+  } catch (err) {
+    const error = new Error(err);
+    error.httpStatus = 500;
+    console.log(error);
+    return next(error);
+  }
 };
 
 const getOrders = async (req, res, next) => {
-  const orders = await Order.find({ "user.userId": req.user._id });
-  res.render("shop/orders", {
-    path: "/orders",
-    pageTitle: "Your Orders",
-    orders: orders,
-  });
+  try {
+    const orders = await Order.find({ "user.userId": req.user._id });
+    res.render("shop/orders", {
+      path: "/orders",
+      pageTitle: "Your Orders",
+      orders: orders,
+    });
+  } catch (err) {
+    const error = new Error(err);
+    error.httpStatus = 500;
+    console.log(error);
+    return next(error);
+  }
 };
 
 const postOrder = async (req, res, next) => {
@@ -99,19 +139,29 @@ const postOrder = async (req, res, next) => {
     });
     await req.user.clearCart();
     res.status(201).json({
-      order: order,
       status: "success",
+      order: order,
     });
   } catch (err) {
-    console.log(err);
+    const error = new Error(err);
+    error.httpStatus = 500;
+    console.log(error);
+    return next(error);
   }
 };
 
 const getCheckout = (req, res, next) => {
-  res.render("shop/checkout", {
-    path: "/checkout",
-    pageTitle: "Checkout",
-  });
+  try {
+    res.render("shop/checkout", {
+      path: "/checkout",
+      pageTitle: "Checkout",
+    });
+  } catch (err) {
+    const error = new Error(err);
+    error.httpStatus = 500;
+    console.log(error);
+    return next(error);
+  }
 };
 
 module.exports = {

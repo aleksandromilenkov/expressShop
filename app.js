@@ -7,7 +7,10 @@ const adminRoutes = require("./routes/adminRoutes");
 const shopRoutes = require("./routes/shopRoutes");
 const authRoutes = require("./routes/authRoutes");
 const dotenv = require("dotenv");
-const { errorHandler } = require("./controllers/errorController");
+const {
+  errorHandler,
+  errorHandlerInternal,
+} = require("./controllers/errorController");
 const User = require("./models/userModel");
 const session = require("express-session");
 const MongoDBStore = require("connect-mongodb-session")(session);
@@ -35,27 +38,39 @@ app.use(
 
 app.use(csurfProtection);
 
-app.use(async (req, res, next) => {
-  try {
-    const user = await User.findById(req.session?.user?._id);
-    req.user = user;
-    next();
-  } catch (err) {
-    console.log(err, "NO USER LOGGED IN");
-  }
-});
-
 app.use((req, res, next) => {
   res.locals.isAuthenticated = req.session?.isLoggedIn;
   res.locals.csurfToken = req.csrfToken();
   next();
 });
 
+app.use(async (req, res, next) => {
+  if (!req.session.user) {
+    return next();
+  }
+  try {
+    const user = await User.findById(req.session?.user?._id);
+    req.user = user;
+    next();
+  } catch (err) {
+    console.log(err, "NO USER LOGGED IN");
+    next(new Error(err));
+  }
+});
+
 app.use("/admin", adminRoutes);
 app.use("/", shopRoutes);
 app.use("/", authRoutes);
 
-app.use("*", errorHandler);
+app.get("/500", errorHandlerInternal);
+app.use(errorHandler);
+app.use((error, req, res, next) => {
+  res.status(500).render("500", {
+    pageTitle: "Internal Server Error ",
+    path: "/500",
+    isAuthenticated: req.session.isLoggedIn,
+  });
+});
 
 const DB = process.env.DATABASE.replace(
   "<password>",

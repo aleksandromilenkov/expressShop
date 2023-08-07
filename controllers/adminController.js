@@ -1,24 +1,39 @@
 const { validationResult } = require("express-validator");
 const Product = require("../models/productModel");
+const mongoose = require("mongoose");
 
 const getAddProduct = (req, res) => {
-  res.render("admin/add-product", {
-    pageTitle: "Add Product",
-    path: "/admin/add-product",
-  });
+  try {
+    res.render("admin/add-product", {
+      pageTitle: "Add Product",
+      path: "/admin/add-product",
+    });
+  } catch (err) {
+    const error = new Error(err);
+    error.httpStatus = 500;
+    console.log(error);
+    return next(error);
+  }
 };
 
-const getEditProduct = async (req, res) => {
-  const { id } = req.params;
-  const product = await Product.findById(id);
-  res.render("admin/edit-product", {
-    pageTitle: "Edit Product",
-    path: "/admin/edit-product",
-    product: product,
-  });
+const getEditProduct = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const product = await Product.findById(id);
+    res.render("admin/edit-product", {
+      pageTitle: "Edit Product",
+      path: "/admin/edit-product",
+      product: product,
+    });
+  } catch (err) {
+    const error = new Error(err);
+    error.httpStatus = 500;
+    console.log(error);
+    return next(error);
+  }
 };
 
-const createProduct = async (req, res) => {
+const createProduct = async (req, res, next) => {
   try {
     const title = req.body.title;
     const imageUrl = req.body.imageUrl;
@@ -45,11 +60,13 @@ const createProduct = async (req, res) => {
       data: newProduct,
     });
   } catch (err) {
-    res.status(400).json({
-      status: "error",
-      message: "Invalid inputs",
-    });
-    console.log(err);
+    // res.status(500).json({
+    //   status: "internal-error",
+    // });
+    const error = new Error(err);
+    error.httpStatus = 500;
+    console.log(error);
+    return next(error);
   }
 };
 
@@ -63,50 +80,65 @@ const getProducts = async (req, res) => {
       hasProducts: products.length > 0,
     });
   } catch (err) {
-    console.log(err);
+    const error = new Error(err);
+    error.httpStatus = 500;
+    console.log(error);
+    return next(error);
   }
 };
 
 const editProduct = async (req, res) => {
-  const { id } = req.params;
-  if (req.user._id !== id) {
-  }
-  const errors = validationResult(req);
-  console.log(errors.array());
-  if (!errors.isEmpty()) {
-    return res.status(422).json({
-      status: "error",
-      message: errors.array()[0].msg,
-      errors: errors.array(),
+  try {
+    const { id } = req.params;
+    const errors = validationResult(req);
+    console.log(errors.array());
+    if (!errors.isEmpty()) {
+      return res.status(422).json({
+        status: "error",
+        message: errors.array()[0].msg,
+        errors: errors.array(),
+      });
+    }
+    const product = await Product.findById(id);
+    if (product.userId.toString() !== req.user._id.toString()) {
+      return res.status(400).json({
+        status: "error",
+        message: "Can't edit this product",
+      });
+    }
+    const updatedProduct = await Product.findByIdAndUpdate(id, req.body);
+    res.status(200).json({
+      status: "success",
+      data: updatedProduct,
     });
+  } catch (err) {
+    const error = new Error(err);
+    error.httpStatus = 500;
+    console.log(error);
+    return next(error);
   }
-  const product = await Product.findById(id);
-  if (product.userId.toString() !== req.user._id.toString()) {
-    return res.status(400).json({
-      status: "error",
-      message: "Can't edit this product",
-    });
-  }
-  const updatedProduct = await Product.findByIdAndUpdate(id, req.body);
-  res.status(200).json({
-    status: "success",
-    data: updatedProduct,
-  });
 };
 
 const deleteProduct = async (req, res) => {
-  const { id } = req.params;
-  const resp = await Product.deleteOne({ _id: id, userId: req.user._id });
-  if (resp.deletedCount === 0) {
-    return res.status(400).json({
-      status: "error",
-      message: "Can't delete this product",
+  try {
+    const { id } = req.params;
+    const resp = await Product.deleteOne({ _id: id, userId: req.user._id });
+    if (resp.deletedCount === 0) {
+      return res.status(400).json({
+        status: "error",
+        message: "Can't delete this product",
+      });
+    }
+    return res.status(200).json({
+      status: "success",
+      data: null,
     });
+  } catch (err) {
+    const error = new Error(err);
+    error.httpStatus = 500;
+    console.log(error);
+    return next(error);
   }
-  return res.status(200).json({
-    status: "success",
-    data: null,
-  });
 };
 
 module.exports = {

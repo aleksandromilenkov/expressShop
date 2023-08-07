@@ -29,7 +29,7 @@ loginForm.addEventListener("submit", async (e) => {
       location.assign("/");
       console.log(data.message);
       errorField.classList.add("hide-field");
-    } else {
+    } else if (data.status === "error") {
       errorField.classList.remove("hide-field");
       const errorMessage = (document.querySelector(
         ".userMessage--error"
@@ -41,6 +41,8 @@ loginForm.addEventListener("submit", async (e) => {
       if (data.errors.find((err) => err.path === "password")) {
         document.querySelector("#password").classList.add("invalid");
       }
+    } else {
+      location.assign("/500");
     }
   } catch (err) {
     console.log(err);

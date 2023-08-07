@@ -32,51 +32,65 @@ const sendMail = async (to, from, subject, text, html) => {
 };
 
 const getLogin = (req, res, next) => {
-  res.render("auth/login", {
-    path: "/login",
-    pageTitle: "Login",
-  });
+  try {
+    res.render("auth/login", {
+      path: "/login",
+      pageTitle: "Login",
+    });
+  } catch (err) {
+    const error = new Error(err);
+    error.httpStatus = 500;
+    console.log(error);
+    return next(error);
+  }
 };
 
 const postLogin = async (req, res, next) => {
-  const email = req.body.email;
-  const password = req.body.password;
-  const user = await User.findOne({ email: email });
-  const errors = validationResult(req);
-  console.log(errors.array());
-  if (!errors.isEmpty()) {
-    return res.status(422).json({
-      status: "error",
-      message: errors.array()[0].msg,
-      errors: errors.array(),
+  try {
+    const email = req.body.email;
+    const password = req.body.password;
+    const user = await User.findOne({ email: email });
+    const errors = validationResult(req);
+    console.log(errors.array());
+    if (!errors.isEmpty()) {
+      return res.status(422).json({
+        status: "error",
+        message: errors.array()[0].msg,
+        errors: errors.array(),
+      });
+    }
+    if (!user) {
+      console.log("Not user found with that E-mail");
+      return res.status(401).json({
+        status: "error",
+        message: "Not user found with that E-mail ",
+        errors: [{ path: "email" }],
+      });
+    }
+    const isPasswordCorrect = await bcrypt.compare(password, user?.password);
+    if (!isPasswordCorrect) {
+      console.log("Not user found with that Password");
+      return res.status(401).json({
+        status: "error",
+        message: "Not user found with that Password",
+        errors: [{ path: "password" }],
+      });
+    }
+    req.session.isLoggedIn = true;
+    req.session.user = user;
+    req.session.save((err) => {
+      err && console.log(err);
     });
-  }
-  if (!user) {
-    console.log("Not user found with that E-mail");
-    return res.status(401).json({
-      status: "error",
-      message: "Not user found with that E-mail ",
-      errors: [{ path: "email" }],
+    return res.status(200).json({
+      status: "success",
+      message: "User successfully logged in",
     });
+  } catch (err) {
+    const error = new Error(err);
+    error.httpStatus = 500;
+    console.log(error);
+    return next(error);
   }
-  const isPasswordCorrect = await bcrypt.compare(password, user?.password);
-  if (!isPasswordCorrect) {
-    console.log("Not user found with that Password");
-    return res.status(401).json({
-      status: "error",
-      message: "Not user found with that Password",
-      errors: [{ path: "password" }],
-    });
-  }
-  req.session.isLoggedIn = true;
-  req.session.user = user;
-  req.session.save((err) => {
-    err && console.log(err);
-  });
-  return res.status(200).json({
-    status: "success",
-    message: "User successfully logged in",
-  });
 };
 
 const postLogout = async (req, res, next) => {
@@ -87,11 +101,18 @@ const postLogout = async (req, res, next) => {
 };
 
 const getSignup = async (req, res, next) => {
-  res.render("auth/signup", {
-    path: "/signup",
-    pageTitle: "Signup",
-    isAuthenticated: false,
-  });
+  try {
+    res.render("auth/signup", {
+      path: "/signup",
+      pageTitle: "Signup",
+      isAuthenticated: false,
+    });
+  } catch (err) {
+    const error = new Error(err);
+    error.httpStatus = 500;
+    console.log(error);
+    return next(error);
+  }
 };
 
 const postSignup = async (req, res, next) => {
@@ -138,10 +159,17 @@ const postSignup = async (req, res, next) => {
 };
 
 const getReset = (req, res, next) => {
-  res.render("auth/reset-password", {
-    path: "/reset",
-    pageTitle: "Reset Password",
-  });
+  try {
+    res.render("auth/reset-password", {
+      path: "/reset",
+      pageTitle: "Reset Password",
+    });
+  } catch (err) {
+    const error = new Error(err);
+    error.httpStatus = 500;
+    console.log(error);
+    return next(error);
+  }
 };
 
 const postReset = (req, res, next) => {
@@ -179,50 +207,67 @@ const postReset = (req, res, next) => {
         sentEmail,
       });
     } catch (err) {
-      console.log(err);
+      const error = new Error(err);
+      error.httpStatus = 500;
+      console.log(error);
+      return next(error);
     }
   });
 };
 
 const getNewPassword = async (req, res, next) => {
-  const { token } = req.params;
-  const user = await User.findOne({
-    resetToken: token,
-    resetTokenExpiration: { $gte: Date.now() },
-  });
-  let errorMessage = null;
-  if (!user) {
-    errorMessage = "Password reset token expired. Try again.";
+  try {
+    const { token } = req.params;
+    const user = await User.findOne({
+      resetToken: token,
+      resetTokenExpiration: { $gte: Date.now() },
+    });
+    let errorMessage = null;
+    if (!user) {
+      errorMessage = "Password reset token expired. Try again.";
+    }
+    res.render(`auth/new-password`, {
+      path: "/new-password",
+      pageTitle: "New Password",
+      errorMessage: errorMessage,
+      token: token,
+      userId: user?._id?.toString(),
+    });
+  } catch (err) {
+    const error = new Error(err);
+    error.httpStatus = 500;
+    console.log(error);
+    return next(error);
   }
-  res.render(`auth/new-password`, {
-    path: "/new-password",
-    pageTitle: "New Password",
-    errorMessage: errorMessage,
-    token: token,
-    userId: user?._id?.toString(),
-  });
 };
 
 const postNewPassword = async (req, res, next) => {
-  const { newPassword, userId, token } = req.body;
-  const user = await User.findOne({
-    _id: userId,
-    resetToken: token,
-    resetTokenExpiration: { $gte: Date.now() },
-  });
-  user.password = await bcrypt.hash(newPassword, 12);
-  user.resetToken = undefined;
-  user.resetTokenExpiration = undefined;
-  await user.save();
-  if (!user) {
-    return res.status(400).json({
-      status: "error",
-      message: "Something went wrong, try again",
+  try {
+    const { newPassword, userId, token } = req.body;
+    const user = await User.findOne({
+      _id: userId,
+      resetToken: token,
+      resetTokenExpiration: { $gte: Date.now() },
     });
+    user.password = await bcrypt.hash(newPassword, 12);
+    user.resetToken = undefined;
+    user.resetTokenExpiration = undefined;
+    await user.save();
+    if (!user) {
+      return res.status(400).json({
+        status: "error",
+        message: "Something went wrong, try again",
+      });
+    }
+    res.status(200).json({
+      status: "success",
+    });
+  } catch (err) {
+    const error = new Error(err);
+    error.httpStatus = 500;
+    console.log(error);
+    return next(error);
   }
-  res.status(200).json({
-    status: "success",
-  });
 };
 
 const protect = async (req, res, next) => {

@@ -45,5 +45,7 @@ editBtn.addEventListener("click", async (e) => {
     if (data.errors.find((er) => er.path === "title")) {
       document.querySelector("#title").classList.add("invalid");
     }
+  } else {
+    location.assign("/500");
   }
 });

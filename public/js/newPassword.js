@@ -42,9 +42,11 @@ updatePasswordBtn.addEventListener("click", async (e) => {
   if (data.status === "error") {
     passwordsDontMatchField.textContent = data.message;
     passwordsDontMatchField.classList.remove("hide-field");
-  } else {
+  } else if (data.status === "success") {
     updatePasswordSuccessField.classList.remove("hide-field");
     updatePasswordSuccessField.innerHTML = `
     Password successfully updated. <a href="http://localhost:3000/login">Log in here </a>`;
+  } else {
+    location.assign("/500");
   }
 });
