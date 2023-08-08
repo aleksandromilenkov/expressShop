@@ -1,6 +1,9 @@
+const fs = require("fs");
+const path = require("path");
 const Order = require("../models/ordersModel");
 const Product = require("../models/productModel");
 const User = require("../models/userModel");
+const PDFDocument = require("pdfkit");
 const getProducts = async (req, res, next) => {
   try {
     const products = await Product.find({});
@@ -164,6 +167,67 @@ const getCheckout = (req, res, next) => {
   }
 };
 
+const getInvoice = async (req, res, next) => {
+  try {
+    const { orderId } = req.params;
+    const order = await Order.findById(orderId);
+    if (!order) {
+      return next(new Error("No order found."));
+    }
+    if (order.user.userId.toString() !== req.user._id.toString()) {
+      return next(new Error("Unauthorized"));
+    }
+    const invoiceName = `invoice-${orderId}.pdf`;
+    const invoicePath = path.join("data", "invoices", invoiceName);
+    const pdfDoc = new PDFDocument();
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      'inline; filename="' + invoiceName + '"'
+    );
+    pdfDoc.pipe(fs.createWriteStream(invoicePath));
+    // Response(res) object is writable stream.
+    // So you can use readable streams(const pdfDoc) to pipe their output to writable stream
+    pdfDoc.pipe(res);
+    pdfDoc.fontSize(26).text("Invoice", { underline: true });
+    pdfDoc.text("--------------------------");
+    let total = 0;
+    order.products.forEach((prod) => {
+      total += prod.quantity * prod.product.price;
+      pdfDoc
+        .fontSize(14)
+        .text(
+          prod.product.title +
+            " - " +
+            prod.quantity +
+            " x " +
+            " $ " +
+            prod.product.price
+        );
+    });
+    pdfDoc.text("----------");
+    pdfDoc.fontSize(20).text("Total Price: $" + total);
+
+    pdfDoc.end();
+    // fs.readFile(invoicePath, (err, data) => {
+    //   if (err) {
+    //     return next(err);
+    //   }
+    //   res.setHeader("Content-Type", "application/pdf");
+    //   res.setHeader(
+    //     "Content-Disposition",
+    //     'inline; filename="' + invoiceName + '"'
+    //   );
+    //   res.send(data);
+    // });
+  } catch (err) {
+    const error = new Error(err);
+    error.httpStatus = 500;
+    console.log(error);
+    return next(error);
+  }
+};
+
 module.exports = {
   getProducts,
   getIndex,
@@ -174,4 +238,5 @@ module.exports = {
   postOrder,
   getCheckout,
   getProduct,
+  getInvoice,
 };

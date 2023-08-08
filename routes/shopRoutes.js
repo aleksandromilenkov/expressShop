@@ -10,6 +10,7 @@ const {
   postOrder,
   getCheckout,
   getProduct,
+  getInvoice,
 } = require("../controllers/shopController");
 const { protect } = require("../controllers/authController");
 
@@ -22,5 +23,7 @@ router.delete("/cart/:id", protect, deleteCart);
 router.get("/orders", protect, getOrders);
 router.post("/create-order", protect, postOrder);
 router.get("/checkout", protect, getCheckout);
+
+router.get("/orders/:orderId", protect, getInvoice);
 
 module.exports = router;

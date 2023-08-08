@@ -1,6 +1,7 @@
 const { validationResult } = require("express-validator");
 const Product = require("../models/productModel");
 const mongoose = require("mongoose");
+const fileHelper = require("../utils/file");
 
 const getAddProduct = (req, res) => {
   try {
@@ -122,6 +123,7 @@ const editProduct = async (req, res) => {
     const price = req.body.price;
     let imageUrl = "";
     if (image) {
+      fileHelper.deleteFile(product.imageUrl);
       imageUrl = image.filename;
     } else {
       imageUrl = product.imageUrl;
@@ -154,6 +156,14 @@ const editProduct = async (req, res) => {
 const deleteProduct = async (req, res) => {
   try {
     const { id } = req.params;
+    const product = await Product.findById(id);
+    if (!product) {
+      return res.status(400).json({
+        status: "error",
+        message: "Can't find this product",
+      });
+    }
+    fileHelper.deleteFile(`images/${product.imageUrl}`);
     const resp = await Product.deleteOne({ _id: id, userId: req.user._id });
     if (resp.deletedCount === 0) {
       return res.status(400).json({
