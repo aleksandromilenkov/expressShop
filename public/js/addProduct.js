@@ -8,27 +8,27 @@ const createProduct = async (data) => {
   const product = await fetch("http://localhost:3000/admin/add-product", {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
       "X-CSRF-Token": csurfToken,
     },
-    body: JSON.stringify(data),
+    body: data,
   });
   const resp = await product.json();
   return resp;
 };
 addProductForm.addEventListener("submit", async (e) => {
   e.preventDefault();
+  const form = new FormData();
   const title = document.getElementById("title").value;
   const description = document.getElementById("description").value;
-  const imageUrl = document.getElementById("imageUrl").value;
+  const image = document.getElementById("image").files[0];
   const price = document.getElementById("price").value;
+  form.append("title", title);
+  form.append("description", description);
+  form.append("image", image);
+  form.append("price", price);
+  console.log(form);
   try {
-    const response = await createProduct({
-      title,
-      description,
-      imageUrl,
-      price,
-    });
+    const response = await createProduct(form);
     console.log(response);
     if (response.status === "success") {
       errorField.classList.add("hide-field");
@@ -40,8 +40,8 @@ addProductForm.addEventListener("submit", async (e) => {
       if (response.errors.find((er) => er.path === "title")) {
         document.querySelector("#title").classList.add("invalid");
       }
-      if (response.errors.find((er) => er.path === "imageUrl")) {
-        document.querySelector("#imageUrl").classList.add("invalid");
+      if (response.errors.find((er) => er.path === "image")) {
+        document.querySelector("#image").classList.add("invalid");
       }
       if (response.errors.find((er) => er.path === "price")) {
         document.querySelector("#price").classList.add("invalid");

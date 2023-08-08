@@ -35,12 +35,21 @@ const getEditProduct = async (req, res, next) => {
 
 const createProduct = async (req, res, next) => {
   try {
+    console.log(req.body, "BODY");
     const title = req.body.title;
-    const imageUrl = req.body.imageUrl;
+    const image = req.file;
     const description = req.body.description;
     const price = req.body.price;
     const errors = validationResult(req);
-    console.log(errors.array());
+    if (!image) {
+      return res.status(422).json({
+        status: "error",
+        message: "Attached file is not an image",
+        errors: [],
+      });
+    }
+    console.log(image, "IMAGE");
+    console.log(errors.array(), "ERROR ARRAY FOR CREATE PRODUCT");
     if (!errors.isEmpty()) {
       return res.status(422).json({
         status: "error",
@@ -48,6 +57,7 @@ const createProduct = async (req, res, next) => {
         errors: errors.array(),
       });
     }
+    const imageUrl = image.filename;
     const newProduct = await Product.create({
       title,
       imageUrl,
@@ -106,7 +116,29 @@ const editProduct = async (req, res) => {
         message: "Can't edit this product",
       });
     }
-    const updatedProduct = await Product.findByIdAndUpdate(id, req.body);
+    const title = req.body.title;
+    const image = req.file;
+    const description = req.body.description;
+    const price = req.body.price;
+    let imageUrl = "";
+    if (image) {
+      imageUrl = image.filename;
+    } else {
+      imageUrl = product.imageUrl;
+    }
+    if (!image) {
+      return res.status(422).json({
+        status: "error",
+        message: "Attached file is not an image",
+        errors: [],
+      });
+    }
+    const updatedProduct = await Product.findByIdAndUpdate(id, {
+      title,
+      imageUrl,
+      description,
+      price,
+    });
     res.status(200).json({
       status: "success",
       data: updatedProduct,
