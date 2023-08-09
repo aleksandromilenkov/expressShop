@@ -35,9 +35,11 @@
              <% } %>
           </div>
         </article>
-        <% } %> <% } else { %>
-        <h1>No products added yet.</h1>
         <% } %>
       </div>
+        <%- include('../includes/pagination.ejs', {currentPage:currentPage, nextPage:nextPage, previousPage:previousPage, lastPage:lastPage, hasNextPage:hasNextPage, hasPreviousPage:hasPreviousPage})%>
+        <% } else { %>
+        <h1>No products added yet.</h1>
+        <% } %>
     </main>
     <%- include('../includes/end.ejs') %>
