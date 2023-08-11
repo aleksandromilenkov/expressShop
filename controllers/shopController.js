@@ -4,6 +4,9 @@ const Order = require("../models/ordersModel");
 const Product = require("../models/productModel");
 const User = require("../models/userModel");
 const PDFDocument = require("pdfkit");
+const stripe = require("stripe")(
+  "sk_test_51NRdBLAZza2Mlk9lWSVbCEWz02ViMvfYATGhScwAPLFS1xUEwt8vnUQkWW2pgLgLWZ6LXAohiKxmj5XGpwzlwWYK00MVmcxmgP"
+);
 
 const ITEMS_PER_PAGE = 1;
 
@@ -188,12 +191,71 @@ const postOrder = async (req, res, next) => {
   }
 };
 
-const getCheckout = (req, res, next) => {
+const getCheckout = async (req, res, next) => {
   try {
+    let products;
+    let total = 0;
+    const user = await req.user.populate({
+      path: "cart.items.productId",
+    });
+    products = user.cart.items;
+    console.log(user.cart.items);
+    total = products.reduce((acc, val) => {
+      return acc + val.productId.price * val.quantity;
+    }, 0);
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      line_items: products.map((product) => {
+        return {
+          price_data: {
+            product_data: {
+              name: product.productId.title,
+              description: product.productId.description,
+            },
+            unit_amount: product.productId.price * 100,
+            currency: "usd",
+          },
+          quantity: product.quantity,
+        };
+      }),
+      customer_email: req.user.email,
+      success_url: `${req.protocol}://${req.get("host")}/checkout/success`,
+      cancel_url: `${req.protocol}://${req.get("host")}/checkout/cancel`,
+      mode: "payment",
+    });
     res.render("shop/checkout", {
       path: "/checkout",
       pageTitle: "Checkout",
+      products: user.cart.items,
+      totalSum: total,
+      sessionId: session.id,
     });
+  } catch (err) {
+    const error = new Error(err);
+    error.httpStatus = 500;
+    console.log(error);
+    return next(error);
+  }
+};
+
+const getCheckoutSuccess = async (req, res, next) => {
+  try {
+    const products = await req.user.populate("cart.items.productId");
+    const adjustedProducts = products.cart.items.map((item) => {
+      return {
+        product: { ...item.productId._doc },
+        quantity: item.quantity,
+      };
+    });
+    const order = await Order.create({
+      products: adjustedProducts,
+      user: {
+        email: req.user.email,
+        userId: req.user._id,
+      },
+    });
+    await req.user.clearCart();
+    res.redirect("/orders");
   } catch (err) {
     const error = new Error(err);
     error.httpStatus = 500;
@@ -272,6 +334,7 @@ module.exports = {
   getOrders,
   postOrder,
   getCheckout,
+  getCheckoutSuccess,
   getProduct,
   getInvoice,
 };

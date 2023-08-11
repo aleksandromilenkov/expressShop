@@ -165,6 +165,8 @@ const deleteProduct = async (req, res) => {
     }
     fileHelper.deleteFile(`images/${product.imageUrl}`);
     const resp = await Product.deleteOne({ _id: id, userId: req.user._id });
+    console.log(resp.deletedCount, "DELETED COUNT");
+    console.log(resp, "DELETED RESP");
     if (resp.deletedCount === 0) {
       return res.status(400).json({
         status: "error",

@@ -3,6 +3,7 @@ const deleteBtns = document.querySelectorAll(".deleteProduct");
 deleteBtns.forEach((deleteBtn) => {
   deleteBtn.addEventListener("click", async (e) => {
     const csurfToken = document.querySelector(".csurfToken").value;
+    const productElement = deleteBtn.closest("article");
     const resp = await fetch(
       `http://localhost:3000/admin/products/${e.target.dataset.doc}`,
       {
@@ -14,8 +15,8 @@ deleteBtns.forEach((deleteBtn) => {
       }
     );
     const data = await resp.json();
-    if (data.status === "sucess") {
-      location.reload();
+    if (data.status === "success") {
+      productElement.remove();
     } else {
       location.assign("/");
     }
