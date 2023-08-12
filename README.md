@@ -42,9 +42,7 @@ In this app:
 ## Home page when not loged in :
 ![homePageLogoff](https://github.com/aleksandromilenkov/expressShop/assets/64156983/3efea86c-1d28-4834-90f1-71925f6e712d)
 ## Login page :
-![login](https://github.com/aleksandromilenkov/expressShop/assets/64156983/5969e28c-8916-4d37-8d2f-8d5dc8838cb3))
-## Tour Details page :
-![natoursDetails3](https://github.com/aleksandromilenkov/NatoursAPI/assets/64156983/ec431ede-7c9c-41df-9dd5-b3a06c1ebd5b)
+![login](https://github.com/aleksandromilenkov/expressShop/assets/64156983/5969e28c-8916-4d37-8d2f-8d5dc8838cb3)
 ## Signup page :
 ![signup](https://github.com/aleksandromilenkov/expressShop/assets/64156983/50100c7e-2c20-4202-a619-72991bf999fc)
 ## Reset password page :
